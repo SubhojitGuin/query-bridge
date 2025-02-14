@@ -21,7 +21,7 @@ llm = ChatOpenAI(model=model, temperature=0)
 
 def get_table_details():
     # Read the CSV file into a DataFrame
-    table_description = pd.read_csv("table_descriptions.csv")
+    table_description = pd.read_csv("Table_Description.csv")
     table_docs = []
 
     # Iterate over the DataFrame rows to create Document objects
