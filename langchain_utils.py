@@ -9,7 +9,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from table_details import table_chain 
 from prompts import final_prompt, sql_prompt
-from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown
+from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown , reconnect_sql_connection
 from langchain_core.runnables import RunnableLambda
 import datetime
 import traceback
@@ -39,14 +39,17 @@ def execute_sql_query(response):
     response = response['response']
     response_query_list = response.split("\n\n")
     cursor = sql_cursor()
-    table_list = []
     try:
      
-        for i , query in enumerate(response_query_list):
+        for _ , query in enumerate(response_query_list):
             query = query.replace(';' , '')
             query = query.replace('\n' , ' ')
             print(query)
-            cursor.execute(query)
+            try:
+                cursor.execute(query)
+            except:
+                reconnect_sql_connection()
+                cursor.execute(query)
             myresponse = list(cursor.fetchall())
             headers = [i[0].replace('_',' ') for i in cursor.description]
             print(headers)

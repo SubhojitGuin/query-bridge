@@ -297,30 +297,34 @@ async def get_response():
 
 @app.post("/api/v1/sql")
 async def get_response(request: QueryRequest):
-  print("\n=================== sql ===================\n")
+  try:
+      print("\n=================== sql ===================\n")
 
-  # Extract the query from the request body
-  Question = request.question
-  Language = request.language
-  SessionId = request.sessionid
+      # Extract the query from the request body
+      Question = request.question
+      Language = request.language
+      SessionId = request.sessionid
 
-  print("Question   : " + str(Question))
-  print("Language   : " + str(Language))
-  print("Session ID : " + str(SessionId))
-  print("Date Time  : " + str(datetime.datetime.now()))
-  print("\n")
+      print("Question   : " + str(Question))
+      print("Language   : " + str(Language))
+      print("Session ID : " + str(SessionId))
+      print("Date Time  : " + str(datetime.datetime.now()))
+      print("\n")
 
-  response = chain_with_history_sql.invoke(
-      {
-        "messages": [HumanMessage(content=Question)],
-        "language": Language,
-        "question": Question
-      },
-      config={"configurable": {"session_id": SessionId}},
-    )
-  
-  print("Response: " + str(response))
-  return {"response" : response}
+      response = chain_with_history_sql.invoke(
+          {
+            "messages": [HumanMessage(content=Question)],
+            "language": Language,
+            "question": Question
+          },
+          config={"configurable": {"session_id": SessionId}},
+        )
+      
+      print("Response: " + str(response))
+      return {"response" : response}
+  except Exception as e:
+      print(traceback.format_exc())
+      return {"response" : str(e)}
   # response_query_list = response.split("\n\n")
   # cursor = sql_cursor()
   # table_list = []
@@ -485,7 +489,7 @@ if __name__ == "__main__":
       "uvicorn",
       "main:app",
       # "--host=localhost",
-      "--port=8081",
+      "--port=8080",
       # f"--workers={workers}",
       "--reload"
   ]

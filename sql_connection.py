@@ -19,10 +19,18 @@ mydb = mysql.connector.connect(
   database=db_name
 )
 
+def reconnect_sql_connection():
+    global mydb
+    mydb = mysql.connector.connect(
+      host=localhost,
+      user=username,
+      password=password,
+      database=db_name
+    )
+
 def sql_cursor():
   mycursor = mydb.cursor()
   return mycursor
-
 
 
 def format_results_as_list(rows):
@@ -55,8 +63,6 @@ def format_results_as_markdown(headers, rows):
     markdown_output = "\n".join(markdown_table)
     
     return markdown_output
-
-
 
 if __name__ == "__main__":
      mycursor = sql_cursor()
