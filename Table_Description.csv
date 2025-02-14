@@ -12,4 +12,4 @@ races,"Contains information about F1 races. Columns: raceId, year, round, circui
 results,"Records the race results including driver and constructor performance. Columns: resultId, raceId, driverId, constructorId, number, grid, position, positionText, positionOrder, points, laps, time, milliseconds, fastestLap, rank, fastestLapTime, fastestLapSpeed, statusId"
 seasons,"Stores season information for the F1 championship. Columns: year, url"
 status,"Defines the status values for race results. Columns: statusId, status"
-target,"Stores target data indicating whether a driver won a race. Columns: targetId, raceId, driverId, win."
+target,"Stores target data indicating whether a driver won a race. Columns: targetId, raceId,driverId,win."

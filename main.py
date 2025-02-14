@@ -21,9 +21,9 @@ import os
 from operator import itemgetter
 from dotenv import load_dotenv
 from langchain_utils import get_chain
-from text_utils import text_chain1 , text_chain2
+from text_utils import text_chain1 
 from langchain_core.pydantic_v1 import BaseModel, Field
-from Modular_function import newloggingfunction
+# from Modular_function import newloggingfunction
 from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown
 from prompts import question_prompt
 
@@ -438,37 +438,37 @@ async def get_response(request: QueryRequest):
   print(store_text)
   return {"response" : response}
 
-@app.post("/api/v1/text_report")
-async def get_response(request: QueryRequest):
-  print("\n=================== text_report ===================\n")
+# @app.post("/api/v1/text_report")
+# async def get_response(request: QueryRequest):
+#   print("\n=================== text_report ===================\n")
 
-  # Extract the query from the request body
-  Question = request.question
-  Language = request.language
-  SessionId = request.sessionid
+#   # Extract the query from the request body
+#   Question = request.question
+#   Language = request.language
+#   SessionId = request.sessionid
 
-  print("Question   : " + str(Question))
-  print("Language   : " + str(Language))
-  print("Session ID : " + str(SessionId))
-  print("Date Time  : " + str(datetime.datetime.now()))
-  print("\n")
+#   print("Question   : " + str(Question))
+#   print("Language   : " + str(Language))
+#   print("Session ID : " + str(SessionId))
+#   print("Date Time  : " + str(datetime.datetime.now()))
+#   print("\n")
 
-  # question_response = modify_question_chain.invoke(
-  #    {
-  #       "question": Question
-  #    }
-  # )
-  # print("Question Response: " + str(question_response))
+#   # question_response = modify_question_chain.invoke(
+#   #    {
+#   #       "question": Question
+#   #    }
+#   # )
+#   # print("Question Response: " + str(question_response))
 
-  response = text_chain2.invoke(
-      {
-        "language": Language,
-        "question": Question
-      },)
+#   response = text_chain2.invoke(
+#       {
+#         "language": Language,
+#         "question": Question
+#       },)
   
-  print("Response: " + str(response))
-  print(store_text)
-  return {"response" : response}
+#   print("Response: " + str(response))
+#   print(store_text)
+#   return {"response" : response}
 
 if __name__ == "__main__":
   import multiprocessing
