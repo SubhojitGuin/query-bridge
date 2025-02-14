@@ -8,7 +8,7 @@ from operator import itemgetter
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from table_details import table_chain 
-from prompts import final_prompt, answer_prompt, sql_prompt
+from prompts import final_prompt, sql_prompt
 from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown
 from langchain_core.runnables import RunnableLambda
 import datetime

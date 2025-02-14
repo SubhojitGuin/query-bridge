@@ -22,8 +22,8 @@ prompt_template1 = """
     Answer the user question to the best of your ability in proper {language}.
     Answer only from the provided chat history and not from anywhere else.
     Question: \n{question}\n
-    
-    Answer:
+
+    Answer:
     """
 
 # prompt_template2 = """

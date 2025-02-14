@@ -109,7 +109,7 @@ examples = [
     {
         "input": "Retrieve all race winners along with their constructors for a specific year.",
         "query": "SELECT r.name, d.forename, d.surname, cons.name AS constructor FROM results res JOIN races r ON res.raceId = r.raceId JOIN drivers d ON res.driverId = d.driverId JOIN constructors cons ON res.constructorId = cons.constructorId WHERE r.year = 2023 AND res.position = 1;"
-}
+    }
 ]
 
 

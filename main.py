@@ -25,7 +25,7 @@ from text_utils import text_chain1
 from langchain_core.pydantic_v1 import BaseModel, Field
 # from Modular_function import newloggingfunction
 from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown
-from prompts import question_prompt
+# from prompts import question_prompt
 
 
 
@@ -54,15 +54,15 @@ store_text = {}
 store = {}
 
 # -- Define the session history getter --
-def get_session_history_sql(session_id: str) -> BaseChatMessageHistory:
-  if session_id not in store_sql:
-    store_sql[session_id] = InMemoryChatMessageHistory()
-  return store_sql[session_id]
+# def get_session_history_sql(session_id: str) -> BaseChatMessageHistory:
+#   if session_id not in store_sql:
+#     store_sql[session_id] = InMemoryChatMessageHistory()
+#   return store_sql[session_id]
 
-def get_session_history_text(session_id: str) -> BaseChatMessageHistory:
-  if session_id not in store_text:
-    store_text[session_id] = InMemoryChatMessageHistory()
-  return store_text[session_id]
+# def get_session_history_text(session_id: str) -> BaseChatMessageHistory:
+#   if session_id not in store_text:
+#     store_text[session_id] = InMemoryChatMessageHistory()
+#   return store_text[session_id]
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
   if session_id not in store:
@@ -85,7 +85,7 @@ text_chain = text_chain1
 
 # -- Create chain --
 # chain = RunnablePassthrough.assign(messages=itemgetter("messages") | trimmer) | prompt | model | parser
-modify_question_chain = itemgetter("question") | question_prompt | model | StrOutputParser()
+# modify_question_chain = itemgetter("question") | question_prompt | model | StrOutputParser()
 chain_sql = RunnablePassthrough.assign(messages=itemgetter("messages") | trimmer ) | sql_chain 
 chain_text = RunnablePassthrough.assign(messages=itemgetter("messages") | trimmer ) | text_chain 
 # map_chain = RunnableParallel(text=chain2, sql=chain1)
@@ -291,6 +291,10 @@ async def get_response(request: QueryRequest):
 #   return response
 # #   return {"response": f"{response['text']} \n {response['sql']}"}
 
+@app.get("/")
+async def get_response():
+   return {"response" : "Welcome to Jal Shakti API"}
+
 @app.post("/api/v1/sql")
 async def get_response(request: QueryRequest):
   print("\n=================== sql ===================\n")
@@ -481,7 +485,7 @@ if __name__ == "__main__":
       "uvicorn",
       "main:app",
       # "--host=localhost",
-      "--port=8080",
+      "--port=8081",
       # f"--workers={workers}",
       "--reload"
   ]
