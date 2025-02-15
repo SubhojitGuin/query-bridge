@@ -22,7 +22,7 @@ from operator import itemgetter
 from dotenv import load_dotenv
 from langchain_utils import get_chain
 from text_utils import text_chain1 
-from langchain_core.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 # from Modular_function import newloggingfunction
 from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown
 # from prompts import question_prompt
