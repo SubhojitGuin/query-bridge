@@ -9,11 +9,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from table_details import table_chain 
 from prompts import final_prompt, sql_prompt
-from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown , reconnect_sql_connection
+from sql_connection import sql_cursor , format_results_as_list , format_results_as_markdown 
+# , reconnect_sql_connection
 from langchain_core.runnables import RunnableLambda
 import datetime
 import traceback
 from langchain_core.messages.ai import AIMessage
+from sqlalchemy import text
 
 load_dotenv()
 
@@ -21,7 +23,7 @@ db_user = os.getenv("db_user")
 db_password = os.getenv("db_password")
 db_host = os.getenv("db_host")
 db_name = os.getenv("db_name")
-db = SQLDatabase.from_uri(f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}")
+db = SQLDatabase.from_uri(f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}" , {"pool_size":10 , "max_overflow":5 , "pool_recycle":1800 , "pool_pre_ping":True})
 context = db.get_context()
 table_info = context["table_info"]
 
@@ -36,6 +38,7 @@ model = os.getenv("model")
 llm = ChatOpenAI(model=model, temperature=0)
 
 def execute_sql_query(response):
+    print("Executing SQL Query")
     response = response['response']
     response_query_list = response.split("\n\n")
     cursor = sql_cursor()
@@ -46,12 +49,12 @@ def execute_sql_query(response):
             query = query.replace('\n' , ' ')
             print(query)
             try:
-                cursor.execute(query)
+                result = cursor.execute(text(query))
             except:
-                reconnect_sql_connection()
-                cursor.execute(query)
-            myresponse = list(cursor.fetchall())
-            headers = [i[0].replace('_',' ') for i in cursor.description]
+                cursor = sql_cursor()
+                result = cursor.execute(text(query))
+            myresponse = list(result.fetchall())
+            headers = [i[0].replace('_',' ') for i in result.keys()]
             print(headers)
             table = format_results_as_markdown(headers , myresponse)
             # df = pd.DataFrame(table)

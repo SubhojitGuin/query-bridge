@@ -4,33 +4,42 @@ from dotenv import load_dotenv
 import mysql.connector
 import csv
 import io
-
+from sqlalchemy import create_engine
 load_dotenv()
-username = os.getenv("db_user")
-password = os.getenv("db_password")
-localhost = os.getenv("db_host")
-db_name = os.getenv("db_name")
+
+user = os.getenv("db_user")
+pw = os.getenv("db_password")
+host = os.getenv("db_host")
+db = os.getenv("db_name")
 
 
-mydb = mysql.connector.connect(
-  host=localhost,
-  user=username,
-  password=password,
-  database=db_name
-)
+engine = create_engine(f"mysql+pymysql://{user}:{pw}@{host}/{db}",
+                        pool_pre_ping=True,
+                        pool_recycle=1800,    # ✅ Recycles connection every 30 minutes
+                        pool_size=10,         # ✅ Maintains up to 10 connections
+                        max_overflow=5)
 
-def reconnect_sql_connection():
-    global mydb
-    mydb = mysql.connector.connect(
-      host=localhost,
-      user=username,
-      password=password,
-      database=db_name
-    )
+
+# mydb = mysql.connector.connect(
+#   host=localhost,
+#   user=username,
+#   password=password,
+#   database=db_name
+# )
+
+# def reconnect_sql_connection():
+#     global mydb
+#     mydb = mysql.connector.connect(
+#       host=localhost,
+#       user=username,
+#       password=password,
+#       database=db_name
+#     )
 
 def sql_cursor():
-  mycursor = mydb.cursor()
-  return mycursor
+    connection = engine.connect()  # Returns a SQLAlchemy connection object
+    return connection
+
 
 
 def format_results_as_list(rows):
