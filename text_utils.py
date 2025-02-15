@@ -18,7 +18,7 @@ embeddings = OpenAIEmbeddings()
     
 # db = FAISS.load_local("jalshakti_faiss_index", embeddings,allow_dangerous_deserialization=True)
 prompt_template1 = """
-    Answer the question as detailed as possible from the chat history (if the question requires it). Make sure to include all the details. If the answer is not in the provided in the chat history and if you do not have specific or exact information, just return "NA" only.\n\n.
+    Answer the question as detailed as possible from the chat history (if the question requires it). Make sure to include all the details. If the answer is not provided in the chat history and if you do not have specific or exact information, just return "NA" only.\n\n.
     Answer the user question to the best of your ability in proper {language}.
     Answer only from the provided chat history and not from anywhere else.
     Question: \n{question}\n
