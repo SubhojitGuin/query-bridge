@@ -39,20 +39,20 @@ class Table(BaseModel):
 
 table_details = get_table_details()
 
-system = f"""Return the names of ALL the SQL tables that MIGHT be relevant to the user question. \
-The tables details are:
+# system = f"""Return the names of ALL the SQL tables that MIGHT be relevant to the user question. \
+# The tables details are:
 
-{table_details}
+# {table_details}
 
-Remember to include ALL POTENTIALLY RELEVANT tables, even if you're not sure that they're needed."""
+# Remember to include ALL POTENTIALLY RELEVANT tables, even if you're not sure that they're needed."""
 
-final_table_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system),
-        ("human", "{input}"),
-         MessagesPlaceholder(variable_name="messages")
-    ]
-)
+# final_table_prompt = ChatPromptTemplate.from_messages(
+#     [
+#         ("system", system),
+#         ("human", "{input}"),
+#          MessagesPlaceholder(variable_name="messages")
+#     ]
+# )
 
 table_details_prompt = f"""Given the following SQL tables:
 
@@ -69,13 +69,30 @@ User's question: "{input}"
 # output_parser = PydanticToolsParser(tools=[Table])
 # table_select_chain = final_table_prompt | llm_with_tools | output_parser
 
-table_select_chain = create_extraction_chain_pydantic(Table, llm, system_message=table_details_prompt)
+# table_select_chain = create_extraction_chain_pydantic(Table, llm, system_message=table_details_prompt)
 
-def get_tables(tables: List[Table]) -> List[str]:
-    tables  = [table.name for table in tables]
-    table_names = {}
-    table_names["tables"] = tables
-    return table_names
+table_select_chain = (
+    ChatPromptTemplate.from_messages([
+        ("system", table_details_prompt),
+        ("human", "{input}")
+    ])
+    | llm.with_structured_output(Table)
+)
+
+
+# def get_tables(tables: List[Table]) -> List[str]:
+#     tables  = [table.name for table in tables]
+#     table_names = {}
+#     table_names["tables"] = tables
+#     return table_names
+
+def get_tables(tables) -> List[str]:
+    if isinstance(tables, tuple):  # Ensure it's not a tuple
+        tables = list(tables)  # Convert it to a list
+        print(tables)
+    return {"tables": [table for table in tables]}
+
+
 
 table_chain = {"input": itemgetter("question")} | table_select_chain| get_tables
 

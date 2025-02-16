@@ -54,7 +54,7 @@ def execute_sql_query(response):
                 cursor = sql_cursor()
                 result = cursor.execute(text(query))
             myresponse = list(result.fetchall())
-            headers = [i[0].replace('_',' ') for i in result.keys()]
+            headers = [i for i in result.keys()]
             print(headers)
             table = format_results_as_markdown(headers , myresponse)
             # df = pd.DataFrame(table)
