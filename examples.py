@@ -137,6 +137,10 @@ examples = [
     {
         "input": "Which race in 2023 had the closest winning margin in milliseconds?",
         "query": "SELECT ra.name, ra.date, MIN(r.milliseconds) AS winning_time FROM results r JOIN races ra ON r.raceId = ra.raceId WHERE ra.year = 2023 AND r.position = '1' GROUP BY ra.name, ra.date ORDER BY winning_time ASC LIMIT 1;"
+    },
+    {
+        "input": "Who is the winner of the last season?",
+        "query": "SELECT DISTINCT d.forename, d.surname FROM driver_standings ds JOIN drivers d ON ds.driverId = d.driverId JOIN races r ON ds.raceId = r.raceId WHERE r.year = (SELECT MAX(year) FROM seasons) AND ds.position = 1;"
     }
 ]
 
