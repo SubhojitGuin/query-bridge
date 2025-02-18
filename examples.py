@@ -11,104 +11,132 @@ LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 
 examples = [
     {
-        "input": "Which driver won the most races in the 2017 season?",
-        "query": "select d.driverId, d.forename, d.surname, count(*) as wins from results res join races r on res.raceId = r.raceId join drivers d on res.driverId = d.driverId where r.year = 2017 and res.position = 1 group by d.driverId, d.forename, d.surname order by wins desc limit 1;"
+        "input": "Where was the British Grand Prix held?",
+        "query": "SELECT name, location, country FROM circuits WHERE circuitId = (SELECT circuitId FROM races WHERE name LIKE '%British Grand Prix%' LIMIT 1);"
     },
     {
-        "input": "List all the constructors that participated in the 2016 season along with the number of races they participated in.",
-        "query": "select c.constructorId, c.name as constructor_name, count(distinct r.raceId) as races_participated from results res join races r on res.raceId = r.raceId join constructors c on res.constructorId = c.constructorId where r.year = 2016 group by c.constructorId, c.name order by races_participated desc;"
+        "input": "Which constructor won the most races in 2021?",
+        "query": "SELECT c.name, COUNT(cs.wins) AS total_wins FROM constructor_standings cs JOIN constructors c ON cs.constructorId = c.constructorId JOIN races r ON cs.raceId = r.raceId WHERE r.year = 2021 AND cs.wins > 0 GROUP BY c.name ORDER BY total_wins DESC LIMIT 1;"
     },
     {
-        "input": "Which driver had the fastest lap time in the 2016 season?",
-        "query": "select d.driverId, d.forename, d.surname, lt.lap, lt.milliseconds as fastest_lap_time from lap_times lt join races r on lt.raceId = r.raceId join drivers d on lt.driverId = d.driverId where r.year = 2016 order by lt.milliseconds asc limit 1;"
+        "input": "What is the fastest lap time recorded at the Monaco Grand Prix?",
+        "query": "SELECT r.year, res.fastestLapTime FROM results res JOIN races r ON res.raceId = r.raceId WHERE r.name LIKE '%Monaco Grand Prix%' AND res.fastestLapTime IS NOT NULL ORDER BY res.fastestLapTime ASC LIMIT 1;"
     },
     {
-        "input": "What is the average pit stop duration for each race in the 2017 season?",
-        "query": "select r.raceId, r.name as race_name, avg(ps.milliseconds) as average_pit_stop_duration from pit_stops ps join races r on ps.raceId = r.raceId where r.year = 2017 group by r.raceId, r.name order by average_pit_stop_duration;"
+        "input": "Which driver has the most pole positions in F1 history?",
+        "query": "SELECT d.forename, d.surname, COUNT(q.position) AS pole_positions FROM qualifying q JOIN drivers d ON q.driverId = d.driverId WHERE q.position = 1 GROUP BY d.forename, d.surname ORDER BY pole_positions DESC LIMIT 1;"
     },
     {
-        "input": "Show the performance details of a specific driver (by driverId) in all races they participated in.",
-        "query": "select r.raceId, r.name as race_name, r.date, res.position, res.points from results res join races r on res.raceId = r.raceId where res.driverId = ? order by r.date;"
+        "input": "How many pit stops did Lewis Hamilton make in the 2022 season?",
+        "query": "SELECT COUNT(*) AS total_pit_stops FROM pit_stops ps JOIN drivers d ON ps.driverId = d.driverId JOIN races r ON ps.raceId = r.raceId WHERE r.year = 2022 AND d.surname LIKE '%Hamilton%';"
     },
     {
-        "input": "List the drivers who achieved a podium finish (top 3) in the 2015 season along with the number of podium finishes they have.",
-        "query": "select d.driverId, d.forename, d.surname, count(*) as podium_finishes from results res join races r on res.raceId = r.raceId join drivers d on res.driverId = d.driverId where r.year = 2015 and res.position <= 3 group by d.driverId, d.forename, d.surname order by podium_finishes desc;"
+        "input": "Which F1 season had the most races?",
+        "query": "SELECT year, COUNT(*) AS total_races FROM races GROUP BY year ORDER BY total_races DESC LIMIT 1;"
     },
     {
-        "input": "Find the total points scored by each driver across their career.",
-        "query": "select d.driverId, d.forename, d.surname, sum(res.points) as total_points from drivers d join results res on d.driverId = res.driverId group by d.driverId, d.forename, d.surname order by total_points desc;"
+        "input": "Which driver has the most fastest laps in a single season?",
+        "query": "SELECT d.forename, d.surname, COUNT(res.fastestLap) AS total_fastest_laps FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.year = 2023 GROUP BY d.forename, d.surname ORDER BY total_fastest_laps DESC LIMIT 1;"
     },
     {
-        "input": "Which race in the 2010 season had the highest total points scored by drivers?",
-        "query": "select r.raceId, r.name as race_name, r.date, sum(res.points) as total_points from races r join results res on r.raceId = res.raceId where r.year = 2010 group by r.raceId, r.name, r.date order by total_points desc limit 1;"
+        "input": "What is the highest number of points ever scored by a constructor in a season?",
+        "query": "SELECT r.year, c.name, SUM(cs.points) AS total_points FROM constructor_standings cs JOIN constructors c ON cs.constructorId = c.constructorId JOIN races r ON cs.raceId = r.raceId GROUP BY r.year, c.name ORDER BY total_points DESC LIMIT 1;"
     },
     {
-        "input": "List all the races where a specific constructor (by constructorId) won at least one race (finished with position 1) along with the date and name of the race.",
-        "query": "select distinct r.raceId, r.name as race_name, r.date from results res join races r on res.raceId = r.raceId where res.constructorId = ? and res.position = 1 order by r.date;"
+        "input": "Which circuit has hosted the most F1 races?",
+        "query": "SELECT c.name, COUNT(r.raceId) AS total_races FROM races r JOIN circuits c ON r.circuitId = c.circuitId GROUP BY c.name ORDER BY total_races DESC LIMIT 1;"
     },
     {
-        "input": "For a given race, show the order of finish for all drivers along with their finishing positions and points earned.",
-        "query": "select d.driverId, d.forename, d.surname, res.position, res.points from results res join drivers d on res.driverId = d.driverId where res.raceId = ? order by res.position;"
+        "input": "Which drivers won the most races in the 2023 season?",
+        "query": "SELECT d.forename, d.surname, COUNT(ds.wins) AS total_wins FROM driver_standings ds JOIN drivers d ON ds.driverId = d.driverId JOIN races r ON ds.raceId = r.raceId WHERE r.year = 2023 AND ds.wins > 0 GROUP BY d.forename, d.surname ORDER BY total_wins DESC;"
     },
     {
-        "input": "Get the details of all races held in a specific circuit.",
-        "query": "SELECT r.name, r.year, r.round, r.date, r.time, c.name AS circuit_name, c.location, c.country FROM races r JOIN circuits c ON r.circuitId = c.circuitId WHERE c.name LIKE 'Circuit_X%';"
+        "input": "Which F1 constructors scored the most points in the 2022 season?",
+        "query": "SELECT c.name, SUM(cs.points) AS total_points FROM constructor_standings cs JOIN constructors c ON cs.constructorId = c.constructorId JOIN races r ON cs.raceId = r.raceId WHERE r.year = 2022 GROUP BY c.name ORDER BY total_points DESC LIMIT 5;"
     },
     {
-        "input": "List the top 3 drivers with the most wins in a specific race.",
-        "query": "SELECT d.forename, d.surname, COUNT(*) AS wins FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.name LIKE 'Race_X%' AND res.position = 1 GROUP BY d.driverId ORDER BY wins DESC LIMIT 3;"
+        "input": "Which F1 race had the smallest gap between the top two qualifying drivers?",
+        "query": "SELECT r.year, r.name, MIN(q2.q1 - q1.q1) AS min_time_gap FROM qualifying q1 JOIN qualifying q2 ON q1.raceId = q2.raceId AND q1.position = 1 AND q2.position = 2 JOIN races r ON q1.raceId = r.raceId WHERE q1.q1 IS NOT NULL AND q2.q1 IS NOT NULL GROUP BY r.year, r.name ORDER BY min_time_gap ASC LIMIT 1;"
     },
     {
-        "input": "Get the constructors and their points in a specific race.",
-        "query": "SELECT cons.name, consRes.points FROM constructorResults consRes JOIN constructors cons ON consRes.constructorId = cons.constructorId JOIN races r ON consRes.raceId = r.raceId WHERE r.name LIKE 'Race_X%';"
+        "input": "Which driver led the most laps in the 2021 season?",
+        "query": "SELECT d.forename, d.surname, SUM(res.laps) AS total_laps_led FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.year = 2021 AND res.positionOrder = 1 GROUP BY d.forename, d.surname ORDER BY total_laps_led DESC LIMIT 1;"
     },
     {
-        "input": "Find the driver standings for a specific race.",
-        "query": "SELECT d.forename, d.surname, dStand.points, dStand.position FROM driverStandings dStand JOIN drivers d ON dStand.driverId = d.driverId JOIN races r ON dStand.raceId = r.raceId WHERE r.name LIKE 'Race_X%' ORDER BY dStand.position;"
+        "input": "Which F1 constructor had the highest average position gain in the 2023 season?",
+        "query": "SELECT c.name, AVG(res.grid - res.positionOrder) AS avg_position_gain FROM results res JOIN constructors c ON res.constructorId = c.constructorId JOIN races r ON res.raceId = r.raceId WHERE r.year = 2023 AND res.grid > 0 AND res.positionOrder > 0 GROUP BY c.name ORDER BY avg_position_gain DESC LIMIT 1;"
     },
     {
-        "input": "Get the fastest lap time and driver details for a specific race.",
-        "query": "SELECT d.forename, d.surname, res.fastestLapTime FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.name LIKE 'Race_X%' AND res.fastestLapTime IS NOT NULL ORDER BY res.fastestLapTime LIMIT 1;"
+        "input": "In which F1 race was the fastest lap recorded at the highest speed?",
+        "query": "SELECT r.year, r.name, MAX(res.fastestLapSpeed) AS max_speed FROM results res JOIN races r ON res.raceId = r.raceId WHERE res.fastestLapSpeed IS NOT NULL GROUP BY r.year, r.name ORDER BY max_speed DESC LIMIT 1;"
     },
     {
-        "input": "List all drivers who participated in a specific race.",
-        "query": "SELECT DISTINCT d.forename, d.surname FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.name LIKE 'Race_X%';"
+        "input": "In which races did Charles Leclerc finish in the top 3 in 2022?",
+        "query": "SELECT r.year, r.name, res.position FROM results res JOIN drivers d ON res.driverId = d.driverId JOIN races r ON res.raceId = r.raceId WHERE r.year = 2022 AND d.surname LIKE 'Leclerc%' AND res.positionOrder BETWEEN 1 AND 3 ORDER BY r.date;"
     },
     {
-        "input": "Retrieve the constructor standings for a specific race.",
-        "query": "SELECT cons.name, cStand.points, cStand.position FROM constructorStandings cStand JOIN constructors cons ON cStand.constructorId = cons.constructorId JOIN races r ON cStand.raceId = r.raceId WHERE r.name LIKE 'Race_X%' ORDER BY cStand.position;"
+        "input": "Which F1 driver has entered the most races without ever winning?",
+        "query": "SELECT d.forename, d.surname, COUNT(res.raceId) AS total_races FROM results res JOIN drivers d ON res.driverId = d.driverId WHERE res.positionOrder > 1 GROUP BY d.forename, d.surname ORDER BY total_races DESC LIMIT 1;"
     },
     {
-        "input": "Get the number of pit stops made by each driver in a specific race.",
-        "query": "SELECT d.forename, d.surname, COUNT(*) AS pit_stops FROM pitStops p JOIN drivers d ON p.driverId = d.driverId JOIN races r ON p.raceId = r.raceId WHERE r.name LIKE 'Race_X%' GROUP BY d.driverId ORDER BY pit_stops DESC;"
+        "input": "What was the longest lap time recorded in the 2023 season?",
+        "query": "SELECT r.year, r.name, l.driverId, MAX(l.milliseconds) AS longest_lap_time FROM lap_times l JOIN races r ON l.raceId = r.raceId WHERE r.year = 2023 GROUP BY r.year, r.name, l.driverId ORDER BY longest_lap_time DESC LIMIT 1;"
     },
     {
-        "input": "Find the average lap time of each driver in a specific race.",
-        "query": "SELECT d.forename, d.surname, AVG(l.milliseconds) AS avg_lap_time FROM lapTimes l JOIN drivers d ON l.driverId = d.driverId JOIN races r ON l.raceId = r.raceId WHERE r.name LIKE 'Race_X%' GROUP BY d.driverId ORDER BY avg_lap_time;"
+        "input": "Which F1 constructors participated in all races of the 2022 season?",
+        "query": "SELECT c.name FROM constructors c JOIN results res ON c.constructorId = res.constructorId JOIN races r ON res.raceId = r.raceId WHERE r.year = 2022 GROUP BY c.name HAVING COUNT(DISTINCT r.raceId) = (SELECT COUNT(*) FROM races WHERE year = 2022);"
     },
     {
-        "input": "Get the qualifying positions of drivers in a specific race.",
-        "query": "SELECT d.forename, d.surname, q.position, q.q1, q.q2, q.q3 FROM qualifying q JOIN drivers d ON q.driverId = d.driverId JOIN races r ON q.raceId = r.raceId WHERE r.name LIKE 'Race_X%' ORDER BY q.position;"
+        "input": "Which drivers won the most races in 2023?",
+        "query": "SELECT d.forename, d.surname, COUNT(r.resultId) AS wins FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE r.position = '1' AND ra.year = 2023 GROUP BY d.forename, d.surname ORDER BY wins DESC;"
     },
     {
-        "input": "Find the driver with the most wins across all races.",
-        "query": "SELECT d.forename, d.surname, COUNT(*) AS wins FROM results res JOIN drivers d ON res.driverId = d.driverId WHERE res.position = 1 GROUP BY d.driverId ORDER BY wins DESC LIMIT 1;"
+        "input": "What is the total number of points scored by each constructor in the 2022 season?",
+        "query": "SELECT c.name, SUM(cr.points) AS total_points FROM constructor_results cr JOIN races ra ON cr.raceId = ra.raceId JOIN constructors c ON cr.constructorId = c.constructorId WHERE ra.year = 2022 GROUP BY c.name ORDER BY total_points DESC;"
     },
     {
-        "input": "Get the constructor with the most championship points across all races.",
-        "query": "SELECT cons.name, SUM(consStand.points) AS total_points FROM constructorStandings consStand JOIN constructors cons ON consStand.constructorId = cons.constructorId GROUP BY cons.name ORDER BY total_points DESC LIMIT 1;"
+        "input": "What is the fastest lap time recorded by a driver in the 2023 season?",
+        "query": "SELECT d.forename, d.surname, MIN(r.fastestLapTime) AS fastest_lap_time FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE ra.year = 2023 AND r.fastestLapTime IS NOT NULL GROUP BY d.forename, d.surname ORDER BY fastest_lap_time ASC LIMIT 1;"
     },
     {
-        "input": "List all races won by a specific driver.",
-        "query": "SELECT r.name, r.year, r.date FROM results res JOIN races r ON res.raceId = r.raceId JOIN drivers d ON res.driverId = d.driverId WHERE d.surname LIKE 'Driver_X%' AND res.position = 1;"
+        "input": "Which driver has the most pole positions (qualified 1st) in 2023?",
+        "query": "SELECT d.forename, d.surname, COUNT(q.qualifyId) AS pole_positions FROM qualifying q JOIN races ra ON q.raceId = ra.raceId JOIN drivers d ON q.driverId = d.driverId WHERE ra.year = 2023 AND q.position = 1 GROUP BY d.forename, d.surname ORDER BY pole_positions DESC;"
     },
     {
-        "input": "Find the driver with the fastest average lap time in a specific race.",
-        "query": "SELECT d.forename, d.surname, AVG(l.milliseconds) AS avg_lap_time FROM lapTimes l JOIN drivers d ON l.driverId = d.driverId JOIN races r ON l.raceId = r.raceId WHERE r.name LIKE 'Race_X%' GROUP BY d.driverId ORDER BY avg_lap_time LIMIT 1;"
+        "input": "How many wins did each driver achieve across all seasons?",
+        "query": "SELECT d.forename, d.surname, COUNT(r.resultId) AS wins FROM results r JOIN drivers d ON r.driverId = d.driverId WHERE r.position = '1' GROUP BY d.forename, d.surname ORDER BY wins DESC;"
     },
     {
-        "input": "Retrieve all race winners along with their constructors for a specific year.",
-        "query": "SELECT r.name, d.forename, d.surname, cons.name AS constructor FROM results res JOIN races r ON res.raceId = r.raceId JOIN drivers d ON res.driverId = d.driverId JOIN constructors cons ON res.constructorId = cons.constructorId WHERE r.year = 2023 AND res.position = 1;"
+        "input": "What is the average pit stop duration for each driver in the 2023 season?",
+        "query": "SELECT d.forename, d.surname, AVG(ps.milliseconds) AS avg_pit_stop_duration FROM pit_stops ps JOIN races ra ON ps.raceId = ra.raceId JOIN drivers d ON ps.driverId = d.driverId WHERE ra.year = 2023 GROUP BY d.forename, d.surname ORDER BY avg_pit_stop_duration ASC;"
+    },
+    {
+        "input": "Which driver had the fastest laps in the 2023 season?",
+        "query": "SELECT d.forename, d.surname, COUNT(r.fastestLap) AS fastest_laps FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE ra.year = 2023 AND r.fastestLap IS NOT NULL GROUP BY d.forename, d.surname ORDER BY fastest_laps DESC;"
+    },
+    {
+        "input": "Which drivers finished in the top 3 most frequently in 2023?",
+        "query": "SELECT d.forename, d.surname, COUNT(r.resultId) AS podiums FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE ra.year = 2023 AND r.position IN ('1', '2', '3') GROUP BY d.forename, d.surname ORDER BY podiums DESC;"
+    },
+    {
+        "input": "Which drivers are from the United Kingdom?",
+        "query": "SELECT forename, surname FROM drivers WHERE nationality LIKE '%British%';"
+    },
+    {
+        "input": "How many races were held in 2022?",
+        "query": "SELECT COUNT(*) AS race_count FROM races WHERE year = 2022;"
+    },
+    {
+        "input": "Which driver achieved the highest total points in 2023?",
+        "query": "SELECT d.forename, d.surname, SUM(ds.points) AS total_points FROM driver_standings ds JOIN races ra ON ds.raceId = ra.raceId JOIN drivers d ON ds.driverId = d.driverId WHERE ra.year = 2023 GROUP BY d.forename, d.surname ORDER BY total_points DESC LIMIT 1;"
+    },
+    {
+        "input": "Which constructors won at least one race in 2023?",
+        "query": "SELECT DISTINCT c.name FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN constructors c ON r.constructorId = c.constructorId WHERE r.position = '1' AND ra.year = 2023;"
+    },
+    {
+        "input": "Which race in 2023 had the closest winning margin in milliseconds?",
+        "query": "SELECT ra.name, ra.date, MIN(r.milliseconds) AS winning_time FROM results r JOIN races ra ON r.raceId = ra.raceId WHERE ra.year = 2023 AND r.position = '1' GROUP BY ra.name, ra.date ORDER BY winning_time ASC LIMIT 1;"
     }
 ]
 
