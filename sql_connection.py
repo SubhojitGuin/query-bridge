@@ -11,9 +11,9 @@ user = os.getenv("db_user")
 pw = os.getenv("db_password")
 host = os.getenv("db_host")
 db = os.getenv("db_name")
+port = os.getenv("db_port")
 
-
-engine = create_engine(f"mysql+pymysql://{user}:{pw}@{host}/{db}",
+engine = create_engine(f"mysql+pymysql://{user}:{pw}@{host}:{port}/{db}",
                         pool_pre_ping=True,
                         pool_recycle=1800,    # ✅ Recycles connection every 30 minutes
                         pool_size=10,         # ✅ Maintains up to 10 connections
