@@ -426,12 +426,12 @@ async def get_response(request: QueryRequest):
   print("Date Time  : " + str(datetime.datetime.now()))
   print("\n")
 
-  if 'report' in Question or 'Report' in Question :
-     Question = f"{Question} (the detailed NOC Guidelines, definitions of some technical terms related to groundwater,  and generalized Training Opportunities related to Groundwater.)"
+  # if 'report' in Question or 'Report' in Question :
+  #    Question = f"{Question} (the detailed NOC Guidelines, definitions of some technical terms related to groundwater,  and generalized Training Opportunities related to Groundwater.)"
 
-     print(Question)
-  else:
-      Question = Question
+  #    print(Question)
+  # else:
+  #     Question = Question
 
   # question_response = modify_question_chain.invoke(
   #    {
