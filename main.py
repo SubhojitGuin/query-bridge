@@ -291,6 +291,13 @@ async def get_response(request: QueryRequest):
 #   return response
 # #   return {"response": f"{response['text']} \n {response['sql']}"}
 
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
 @app.get("/")
 async def get_response():
    return {"response" : "Welcome to Jal Shakti API"}
