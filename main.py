@@ -495,7 +495,7 @@ if __name__ == "__main__":
   uvicorn_cmd = [
       "uvicorn",
       "main:app",
-      # "--host=localhost",
+      "--host=0.0.0.0",
       "--port=8000"
       # f"--workers={workers}",
       # "--reload"
