@@ -331,7 +331,7 @@ async def get_response(request: QueryRequest):
       return {"response" : response}
   except Exception as e:
       print(traceback.format_exc())
-      return {"response" : str(e)}
+      return {"response" : "NA"}
   # response_query_list = response.split("\n\n")
   # cursor = sql_cursor()
   # table_list = []
