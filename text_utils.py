@@ -8,20 +8,44 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
+import requests
+import json
 
 load_dotenv()
 os.environ['OPENAI_API_KEY'] = os.getenv("OPENAI_API_KEY")
 os.environ["LANGCHAIN_TRACING_V2"]=os.getenv("LANGCHAIN_TRACING_V2")
 os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+# os.environ["X_API_KEY"] = os.getenv("X_API_KEY")
 
 embeddings = OpenAIEmbeddings()
+
+
+def get_search_response(question):
+    url = "https://google.serper.dev/news"
+
+    payload = json.dumps({
+        "q": question,
+        "num": 1
+    })
+    headers = {
+        'X-API-KEY': os.getenv("X_API_KEY"),
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    return response.text
+
+
     
 # db = FAISS.load_local("jalshakti_faiss_index", embeddings,allow_dangerous_deserialization=True)
 prompt_template1 = """
-    Answer the question as detailed as possible from the chat history (if the question requires it). Make sure to include all the details. If the answer is not provided in the chat history and if you do not have specific or exact information, just return "NA" only.\n\n.
+    Answer the question as detailed as possible from the chat history and the context (if the question requires it). Make sure to include all the details. If the answer is not provided in the chat history and the context,if you do not have specific or exact information, just return "NA" only.\n\n.
     Answer the user question to the best of your ability in proper {language}.
-    Answer only from the provided chat history and not from anywhere else.
+    Answer only from the provided chat history and the context and not from anywhere else.
     Question: \n{question}\n
+    Context: \n{context}\n
+
 
     Answer:
     """
@@ -55,6 +79,7 @@ prompt1 = ChatPromptTemplate.from_messages(
 
 text_chain1 = (
     {
+        "context": lambda x: get_search_response(str(itemgetter("question")(x))),
         "question": itemgetter("question"),
         "language": itemgetter("language"),
         "messages":itemgetter("messages")
