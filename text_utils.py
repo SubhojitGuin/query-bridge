@@ -92,9 +92,14 @@ def get_search_response(question, messages):
     
 # db = FAISS.load_local("jalshakti_faiss_index", embeddings,allow_dangerous_deserialization=True)
 prompt_template1 = """
-    Answer the question as detailed as possible from the chat history and the context (if the question requires it). Make sure to include all the details. If the answer is not provided in the chat history and the context,if you do not have specific or exact information, just return "NA" only.\n\n.
-    Answer the user question to the best of your ability in proper {language}.
-    Answer only from the provided chat history and the context and not from anywhere else.
+    Only respond to generic and descriptive questions that require explanations, descriptions, or insights.
+    Answer the question in a detailed and informative manner using the provided chat history and context, ensuring completeness and clarity.  
+
+    If the question asks for specific numbers, rankings, statistics, or factual data points (e.g., fastest lap times, number of wins, specific race results, or list of entities), return "NA" only.  
+
+    Ensure the response is well-structured and provided in proper {language}.  
+    Do not use any external knowledge beyond the given chat history and context.  
+
     Question: \n{question}\n
     Context: \n{context}\n
     
